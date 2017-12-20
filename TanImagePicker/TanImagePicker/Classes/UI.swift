@@ -14,10 +14,14 @@ public extension TanImagePicker {
         case contentViewbackgroundColor(UIColor)
         case imageMargin(Measure)
         case customViewControllerWidth(Measure)
-        case markViewBottomMargin(Measure)
-        case markViewRightMargin(Measure)
+        case checkViewBottomMargin(Measure)
+        case checkViewRightMargin(Measure)
+        case videoMarkViewBottomMargin(Measure)
+        case videoMarkViewLeftMargin(Measure)
         case indicationViewImageMargin(Measure)
         case indicationViewBackgroundColor(UIColor)
+        case cellProgressViewRadius(Measure)
+        case cellProgressViewLineWidth(Measure)
     }
 }
 
@@ -31,10 +35,14 @@ extension TanImagePicker.UIItem: Hashable {
         case .contentViewbackgroundColor: return 0
         case .imageMargin: return 1
         case .customViewControllerWidth: return 2
-        case .markViewBottomMargin: return 3
-        case .markViewRightMargin: return 4
+        case .checkViewBottomMargin: return 3
+        case .checkViewRightMargin: return 4
         case .indicationViewImageMargin: return 5
         case .indicationViewBackgroundColor: return 6
+        case .videoMarkViewBottomMargin: return 7
+        case .videoMarkViewLeftMargin: return 8
+        case .cellProgressViewRadius: return 9
+        case .cellProgressViewLineWidth: return 10
         }
     }
 }
@@ -44,10 +52,14 @@ public extension TanImagePicker {
         private(set) static var backgroundColor: UIColor = .white
         private(set) static var imageMargin: Measure = { 2 }
         private(set) static var customViewControllerWidth: Measure = { 0.55 * UIScreen.main.bounds.width }
-        private(set) static var markViewBottomMargin: Measure = { 7 }
-        private(set) static var markViewHorizontalMargin: Measure = { 6 }
+        private(set) static var checkViewBottomMargin: Measure = { 7 }
+        private(set) static var checkViewHorizontalMargin: Measure = { 6 }
         private(set) static var indicationViewImageMargin: Measure = { 9 }
         private(set) static var indicationViewBackgroundColor: UIColor = .white
+        private(set) static var videoMarkViewBottomMargin: Measure = { 10 }
+        private(set) static var videoMarkVideLeftMargin: Measure = { 8 }
+        private(set) static var cellProgressViewRadius: Measure = { 40 }
+        private(set) static var cellProgressViewLineWidth: Measure = { 10 }
         
         private static func _update(_ item: UIItem) {
             switch item {
@@ -57,14 +69,22 @@ public extension TanImagePicker {
                 imageMargin = margin
             case .customViewControllerWidth(let width):
                 customViewControllerWidth = width
-            case .markViewBottomMargin(let margin):
-                markViewBottomMargin = margin
-            case .markViewRightMargin(let margin):
-                markViewHorizontalMargin = margin
+            case .checkViewBottomMargin(let margin):
+                checkViewBottomMargin = margin
+            case .checkViewRightMargin(let margin):
+                checkViewHorizontalMargin = margin
             case .indicationViewImageMargin(let margin):
                 indicationViewImageMargin = margin
             case .indicationViewBackgroundColor(let color):
                 indicationViewBackgroundColor = color
+            case .videoMarkViewBottomMargin(let margin):
+                videoMarkViewBottomMargin = margin
+            case .videoMarkViewLeftMargin(let margin):
+                videoMarkVideLeftMargin = margin
+            case .cellProgressViewRadius(let radius):
+                cellProgressViewRadius = radius
+            case .cellProgressViewLineWidth(let width):
+                cellProgressViewLineWidth = width
             }
         }
         

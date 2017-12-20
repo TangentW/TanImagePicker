@@ -13,17 +13,41 @@ extension TanImagePicker {
     final class ImageItem {
         let asset: PHAsset
         let isVideo: Bool
-        private(set) var video: AVAsset?
+        
+        private var _video: AVAsset?
+        private var _videoRequestID: PHImageRequestID?
         
         init(_ asset: PHAsset) {
             self.asset = asset
             isVideo = asset.mediaType == .video
-            
-            Me.ImagesManager.shared.fetchVideo(with: asset, progressHandler: nil) { [weak self] video in
-                Me.mainQueue.async {
-                    self?.video = video
-                }
+        }
+        
+        deinit {
+            cancelVideoDownloading()
+        }
+        
+        func downloadVideoIfHas() {
+            guard isVideo, _videoRequestID == nil else { return }
+            if let video = _video {
+                videoDownloadingStateCallback?(.completed(video)); return
             }
+            _videoRequestID = Me.ImagesManager.shared.fetchVideo(with: asset, progressHandler: { [weak self] progress, _ in
+                Me.mainQueue.async {
+                    self?.videoDownloadingStateCallback?(.progress(progress))
+                }
+            }, completionHandler: { [weak self] video in
+                Me.mainQueue.async {
+                    self?._video = video
+                    self?.videoDownloadingStateCallback?(.completed(video))
+                }
+            })
+        }
+        
+        func cancelVideoDownloading() {
+            guard let requestID = _videoRequestID else { return }
+            PHImageManager.default().cancelImageRequest(requestID)
+            videoDownloadingStateCallback?(.cancel)
+            _videoRequestID = nil
         }
         
         // Status
@@ -43,6 +67,7 @@ extension TanImagePicker {
         weak var bindedCell: ImageCell?
         var selectedStateCallback: ((Bool) -> ())?
         var canSelectedCallback: ((Bool) -> ())?
+        var videoDownloadingStateCallback: DownloadingStateCallback<AVAsset>?
     }
 }
 

@@ -9,14 +9,11 @@
 import Foundation
 import Photos
 
-public extension TanImagePicker {
+extension TanImagePicker {
     final class ImagesDownloader {
-        public typealias Cancel = () -> ()
-        public typealias StateCallback = (State) -> ()
+        private var _cancel: DownloadingCancel?
         
-        private var _cancel: Cancel?
-        
-        public func download(_ assets: [PHAsset], stateCallback: StateCallback?) {
+        public func download(_ assets: [PHAsset], stateCallback: DownloadingStateCallback<[PHAsset]>?) {
             _cancel = assets._downloadAssets(stateCallback: stateCallback)
         }
         
@@ -28,16 +25,8 @@ public extension TanImagePicker {
     }
 }
 
-public extension TanImagePicker.ImagesDownloader {
-    enum State {
-        case progress(Double)
-        case cancel
-        case completed
-    }
-}
-
 fileprivate extension Array where Element == PHAsset {
-    func _downloadAssets(stateCallback: Me.ImagesDownloader.StateCallback?) -> Me.ImagesDownloader.Cancel {
+    func _downloadAssets(stateCallback: Me.DownloadingStateCallback<[PHAsset]>?) -> Me.DownloadingCancel {
         assert(Thread.isMainThread, "This method must be called in main thread.")
         var isStopped = false
         let cancel = { isStopped = true; stateCallback?(.cancel) }
@@ -57,7 +46,7 @@ fileprivate extension Array where Element == PHAsset {
                 })
             }
             Me.mainQueue.async {
-                if !isStopped { stateCallback?(.completed) }
+                if !isStopped { stateCallback?(.completed(self)) }
             }
         }
         return cancel

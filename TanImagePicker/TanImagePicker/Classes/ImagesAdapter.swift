@@ -47,6 +47,10 @@ extension TanImagePicker.ImagesAdapter {
         }
     }
     
+    func switchScrollingState(isScrolling: Bool) {
+        _scrollingListeners.forEach { $0.switchScrollingState(isScrolling: isScrolling) }
+    }
+    
     func selectedItem(_ item: Me.ImageItem) {
         guard item.canSelected else { return }
         item.isSelected = true

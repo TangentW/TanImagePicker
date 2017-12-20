@@ -15,11 +15,15 @@ extension TanImagePicker {
             super.init(frame: frame)
             backgroundColor = UI.backgroundColor
             contentView.addSubview(_imageView)
-            contentView.addSubview(_markView)
+            contentView.addSubview(_playerView)
+            contentView.addSubview(_progressView)
+            contentView.addSubview(_checkView)
+            contentView.addSubview(_videoMarkView)
         }
         
         deinit {
             _cancalImageFecthing()
+            _playerView.clear()
         }
         
         required init?(coder aDecoder: NSCoder) {
@@ -33,20 +37,41 @@ extension TanImagePicker {
             return $0
         }(UIImageView())
         
-        private let _markView: _MarkView = {
+        private let _checkView: _CheckView = {
             $0.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin]
             $0.isHidden = true
             return $0
-        }(_MarkView())
+        }(_CheckView())
+        
+        private let _videoMarkView: UIImageView = {
+            $0.sizeToFit()
+            $0.autoresizingMask = [.flexibleTopMargin, .flexibleRightMargin]
+            $0.isHidden = true
+            $0.tintColor = .white
+            return $0
+        }(UIImageView(image: UIImage(named: "video")?.withRenderingMode(.alwaysTemplate)))
+        
+        private let _playerView: _PlayeView = {
+            $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            $0.isHidden = true
+            return $0
+        }(_PlayeView())
+        
+        private let _progressView: _ProgressView = {
+            $0.autoresizingMask = [.flexibleTopMargin, .flexibleBottomMargin, .flexibleLeftMargin, .flexibleRightMargin]
+            $0.isHidden = true
+            return $0
+        }(_ProgressView())
         
         // For Image
         private var _imageRequestID: PHImageRequestID?
+        // For Video
+        private var _isScrolling = true
         
         var shouldBindItemStatus: Bool = true
         
         var item: ImageItem? {
             didSet {
-                if let oldItem = oldValue { _unbindItem(oldItem) }
                 guard let item = item else { return }
                 _beginFetchImage(item)
                 _bindItem(item)
@@ -59,44 +84,58 @@ extension TanImagePicker.ImageCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         _imageView.frame = bounds
-        _markView.frame.origin.x = bounds.width - Me.UI.markViewHorizontalMargin() - _markView.bounds.width
-        _markView.frame.origin.y = bounds.height - Me.UI.markViewBottomMargin() - _markView.bounds.height
+        _checkView.frame.origin.x = bounds.width - Me.UI.checkViewHorizontalMargin() - _checkView.bounds.width
+        _checkView.frame.origin.y = bounds.height - Me.UI.checkViewBottomMargin() - _checkView.bounds.height
+        _videoMarkView.frame.origin.y = bounds.height - Me.UI.videoMarkViewBottomMargin() - _videoMarkView.bounds.height
+        _videoMarkView.frame.origin.x = Me.UI.videoMarkVideLeftMargin()
+        _playerView.frame = bounds
+        _progressView.center = _playerView.center
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         _cancalImageFecthing()
+        _playerView.clear()
+        if let oldItem = item { _unbindItem(oldItem) }
     }
 }
 
 private extension TanImagePicker.ImageCell {
-    func _displayImageView(isSelected: Bool, animated: Bool) {
-        let scale: CGFloat = 0.8
-        let tran: CGAffineTransform = isSelected ? .init(scaleX: scale, y: scale) : .identity
-        if animated {
-            UIView.animate(withDuration: 0.2) { self._imageView.transform = tran }
-        } else {
-            _imageView.transform = tran
-        }
-    }
-    
     func _unbindItem(_ item: Me.ImageItem) {
         guard shouldBindItemStatus, item.bindedCell === self else { return }
         item.selectedStateCallback = nil
         item.canSelectedCallback = nil
+        item.videoDownloadingStateCallback = nil
     }
     
     func _bindItem(_ item: Me.ImageItem) {
         guard shouldBindItemStatus else { return }
-        _markView.refresh(isSelected: item.isSelected)
-        _markView.isHidden = !item.canSelected
-        _displayImageView(isSelected: item.isSelected, animated: false)
+        _checkView.refresh(isSelected: item.isSelected)
+        _checkView.isHidden = !item.canSelected
+        _videoMarkView.isHidden = !item.isVideo
+        _playerView.isHidden = !item.isVideo
+        _progressView.isHidden = !item.isVideo
+        
+        item.downloadVideoIfHas()
+        
         item.selectedStateCallback = { [weak self] in
-            self?._markView.refresh(isSelected: $0)
-            self?._displayImageView(isSelected: $0, animated: true)
+            self?._checkView.refresh(isSelected: $0)
         }
         item.canSelectedCallback = { [weak self] in
-            self?._markView.isHidden = !$0
+            self?._checkView.isHidden = !$0
+        }
+        item.videoDownloadingStateCallback = { [weak self] state in
+            print(state)
+            switch state {
+            case .progress(let progress):
+                self?._progressView.progress = progress
+            case .completed(let video):
+                self?._playerView.video = video
+                if self?._isScrolling == false { self?._playerView.play() }
+                fallthrough
+            case .cancel:
+                self?._progressView.isHidden = true
+            }
         }
         item.bindedCell = self
     }
@@ -117,8 +156,8 @@ private extension TanImagePicker.ImageCell {
 
 // Listen ContentView Scrolling
 extension TanImagePicker.ImageCell {
-    private func _layoutMarkViewWithMaxX(_ x: CGFloat) {
-        _markView.frame.origin.x = x - Me.UI.markViewHorizontalMargin() - _markView.bounds.width
+    private func _layoutCheckViewWithMaxX(_ x: CGFloat) {
+        _checkView.frame.origin.x = x - Me.UI.checkViewHorizontalMargin() - _checkView.bounds.width
     }
     
     func scrolling(collectionView: UICollectionView) {
@@ -126,16 +165,25 @@ extension TanImagePicker.ImageCell {
         let cellFrame = collectionView.convert(frame, from: superview)
         let maxX = min(cellFrame.maxX, collectionView.bounds.maxX) - cellFrame.origin.x
         let magicMarginNumber: CGFloat = 6
-        guard maxX > Me.UI.markViewHorizontalMargin() + _markView.bounds.width + magicMarginNumber else { return }
-        _layoutMarkViewWithMaxX(maxX)
+        guard maxX > Me.UI.checkViewHorizontalMargin() + _checkView.bounds.width + magicMarginNumber else { return }
+        _layoutCheckViewWithMaxX(maxX)
+    }
+    
+    func switchScrollingState(isScrolling: Bool) {
+        _isScrolling = isScrolling
+        if isScrolling {
+            _playerView.pause()
+        } else {
+            _playerView.play()
+        }
     }
 }
 
-// MARK: - MarkView
+// MARK: - CheckView
 private let imageMark = UIImage(named: "image_mark")
 private let imageMarkSel = UIImage(named: "image_mark_sel")
 private extension TanImagePicker.ImageCell {
-    final class _MarkView: UIImageView {
+    final class _CheckView: UIImageView {
         init() {
             super.init(image: imageMark)
             setNeedsLayout()
@@ -156,7 +204,7 @@ private extension TanImagePicker.ImageCell {
     final class _PlayeView: UIView {
         private lazy var _player: AVPlayer = {
             let player = AVPlayer()
-            player.volume = 0
+            player.isMuted = true
             return player
         }()
         
@@ -166,8 +214,8 @@ private extension TanImagePicker.ImageCell {
             return layer
         }(_player)
         
-        override init(frame: CGRect) {
-            super.init(frame: frame)
+        init() {
+            super.init(frame: .zero)
             layer.addSublayer(_playerLayer)
         }
         
@@ -179,16 +227,95 @@ private extension TanImagePicker.ImageCell {
             super.layoutSubviews()
             _playerLayer.frame = bounds
         }
+        
+        var video: AVAsset? {
+            didSet {
+                guard let video = video else { return }
+                video.loadValuesAsynchronously(forKeys: ["playable"], completionHandler: { [weak self] in
+                    let item = AVPlayerItem(asset: video)
+                    self?._player.replaceCurrentItem(with: item)
+                    self?._loopToPlay(item: item)
+                })
+            }
+        }
     }
 }
 
 extension TanImagePicker.ImageCell._PlayeView {
-    func play(_ asset: AVAsset) {
-        _player.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+    func play() {
+        guard let item = _player.currentItem, item.status == .readyToPlay else { return }
         _player.play()
     }
     
     func pause() {
         _player.pause()
+    }
+    
+    var isPause: Bool {
+        return _player.rate == 0
+    }
+    
+    func clear() {
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: nil)
+        _player.replaceCurrentItem(with: nil)
+    }
+}
+
+private extension TanImagePicker.ImageCell._PlayeView {
+    func _loopToPlay(item: AVPlayerItem) {
+        NotificationCenter.default.addObserver(self, selector: #selector(TanImagePicker.ImageCell._PlayeView._playBack), name: .AVPlayerItemDidPlayToEndTime, object: item)
+    }
+    
+    @objc func _playBack() {
+        _player.seek(to: kCMTimeZero)
+        play()
+    }
+}
+
+// MARK: - ProgressView
+private let progressViewSize = CGSize(width: 2 * Me.UI.cellProgressViewRadius(), height: 2 * Me.UI.cellProgressViewRadius())
+private extension TanImagePicker.ImageCell {
+    final class _ProgressView: UIView {
+        var progress: Double = 0 {
+            didSet {
+                _shapeLayer.strokeEnd = min(1, max(0, CGFloat(progress)))
+            }
+        }
+        
+        init() {
+            super.init(frame: CGRect(origin: .zero, size: progressViewSize))
+            layer.addSublayer(_shapeLayer)
+            _shapeLayer.path = _path
+            layer.shadowColor = UIColor.black.cgColor
+            layer.shadowRadius = 1.2
+            layer.shadowOpacity = 0.2
+            layer.shadowOffset = CGSize(width: 1, height: 1)
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        private let _path: CGPath = {
+            let center = CGPoint(x: 0.5 * progressViewSize.width, y: 0.5 * progressViewSize.height)
+            return UIBezierPath(arcCenter: center, radius: Me.UI.cellProgressViewRadius(), startAngle: -0.5 * CGFloat.pi, endAngle: 1.5 * CGFloat.pi, clockwise: true).cgPath
+        }()
+        
+        private let _shapeLayer: CAShapeLayer = {
+            let layer = CAShapeLayer()
+            layer.lineCap = kCALineCapRound
+            layer.fillColor = UIColor.clear.cgColor
+            layer.strokeColor = UIColor.white.cgColor
+            layer.strokeStart = 0
+            layer.strokeEnd = 0
+            layer.zPosition = 1
+            layer.lineWidth = Me.UI.cellProgressViewLineWidth()
+            return layer
+        }()
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            _shapeLayer.frame = bounds
+        }
     }
 }

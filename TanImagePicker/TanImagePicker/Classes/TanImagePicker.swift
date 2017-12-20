@@ -22,13 +22,16 @@ public class TanImagePicker {
     
     private let _adapter = ImagesAdapter()
     private let _downloader = ImagesDownloader()
+    private let _scrollingListener = ScrollingListener()
     private let _didSelectedAssets: (([PHAsset]) -> ())?
     
-    public init(mediaOption: MediaOption,
+    public init(UI ui: Set<UIItem> = [],
+                mediaOption: MediaOption,
                 imagesLimit: Int = 0,
                 selectedLimit: Int = 9,
                 customViewController: UIViewController? = nil,
                 didSelectedAssets: (([PHAsset]) -> ())? = nil) {
+        UI.update(ui)
         contentView = ContentView(customViewController: customViewController)
         indicationView = SelectedImagesIndicationView()
         _didSelectedAssets = didSelectedAssets
@@ -37,6 +40,7 @@ public class TanImagePicker {
             self?._adapter.load(mediaOption: mediaOption, imagesLimit: imagesLimit,
                                 selectedLimit: selectedLimit,
                                 collectionView: $0, customView: $1)
+            self?._scrollingListener.listen()
         }
         
         indicationView.clearCallback = { [weak self] in
@@ -55,9 +59,13 @@ public class TanImagePicker {
             self?.indicationView.provider.refresh($0)
             self?.selectedAssets = $0.map { $0.asset }
         }
+        
+        _scrollingListener.stateChanged = { [weak self] in
+            self?._adapter.switchScrollingState(isScrolling: $0)
+        }
     }
     
-    public func finishPickingImages(stateCallback: ImagesDownloader.StateCallback? = nil) {
+    public func finishPickingImages(stateCallback: DownloadingStateCallback<[PHAsset]>? = nil) {
         _downloader.download(selectedAssets, stateCallback: stateCallback)
     }
     
@@ -73,11 +81,20 @@ public extension TanImagePicker {
             self.rawValue = rawValue
         }
         
+        // TODO: Support live photo
         public static let photo = MediaOption(rawValue: 1 << 0)
         public static let video = MediaOption(rawValue: 1 << 1)
         public static let all: MediaOption = [.photo, .video]
-        // TODO: Support live photo
     }
+    
+    enum DownloadingState<T> {
+        case progress(Double)
+        case cancel
+        case completed(T)
+    }
+    
+    typealias DownloadingCancel = () -> ()
+    typealias DownloadingStateCallback<T> = (DownloadingState<T>) -> ()
 }
 
 // MARK: - Queue
