@@ -72,6 +72,10 @@ public class TanImagePicker {
     public func cancelImagesDownloading() {
         _downloader.cancel()
     }
+    
+    public func clear() {
+        _adapter.clearSelectedItems()
+    }
 }
 
 public extension TanImagePicker {
