@@ -48,7 +48,7 @@ extension TanImagePicker {
             $0.isHidden = true
             $0.tintColor = .white
             return $0
-        }(UIImageView(image: UIImage(named: "video")?.withRenderingMode(.alwaysTemplate)))
+        }(UIImageView(image: UIImage(named: "video", in: Bundle.myBundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)))
         
         private let _playerView: _PlayeView = {
             $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -195,8 +195,8 @@ extension TanImagePicker.ImageCell {
 }
 
 // MARK: - CheckView
-private let imageMark = UIImage(named: "image_mark")
-private let imageMarkSel = UIImage(named: "image_mark_sel")
+private let imageMark = UIImage(named: "image_mark", in: Bundle.myBundle, compatibleWith: nil)
+private let imageMarkSel = UIImage(named: "image_mark_sel", in: Bundle.myBundle, compatibleWith: nil)
 private extension TanImagePicker.ImageCell {
     final class _CheckView: UIImageView {
         init() {

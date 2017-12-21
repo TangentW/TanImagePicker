@@ -124,7 +124,7 @@ extension TanImagePicker {
     final class CustomViewContainer: UICollectionReusableView, ReusableView {
         override init(frame: CGRect) {
             super.init(frame: frame)
-            backgroundColor = .red
+            backgroundColor = UI.backgroundColor
         }
         
         required init?(coder aDecoder: NSCoder) {

@@ -31,7 +31,7 @@ public extension TanImagePicker {
         
         private lazy var _clearButton: UIButton = {
             let button = UIButton(type: .system)
-            button.setImage(UIImage(named: "clear")?.withRenderingMode(.alwaysOriginal), for: .normal)
+            button.setImage(UIImage(named: "clear", in: Bundle.myBundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal), for: .normal)
             button.autoresizingMask = [.flexibleHeight, .flexibleRightMargin]
             return button
         }()
@@ -41,8 +41,8 @@ public extension TanImagePicker {
             button.setTitle("Original".localizedString, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 13)
             button.setTitleColor(.darkGray, for: .normal)
-            button.setImage(UIImage(named: "check_box")?.withRenderingMode(.alwaysOriginal), for: .normal)
-            button.setImage(UIImage(named: "check_box_light")?.withRenderingMode(.alwaysOriginal), for: .selected)
+            button.setImage(UIImage(named: "check_box", in: Bundle.myBundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal), for: .normal)
+            button.setImage(UIImage(named: "check_box_light", in: Bundle.myBundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal), for: .selected)
             button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 0)
             button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 5)
             return button
