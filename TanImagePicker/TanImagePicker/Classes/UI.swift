@@ -22,6 +22,7 @@ public extension TanImagePicker {
         case indicationViewBackgroundColor(UIColor)
         case cellProgressViewRadius(Measure)
         case cellProgressViewLineWidth(Measure)
+        case automaticallyFetchVideoIfHas(Bool)
     }
 }
 
@@ -43,6 +44,7 @@ extension TanImagePicker.UIItem: Hashable {
         case .videoMarkViewLeftMargin: return 8
         case .cellProgressViewRadius: return 9
         case .cellProgressViewLineWidth: return 10
+        case .automaticallyFetchVideoIfHas: return 11
         }
     }
 }
@@ -58,8 +60,9 @@ public extension TanImagePicker {
         private(set) static var indicationViewBackgroundColor: UIColor = .white
         private(set) static var videoMarkViewBottomMargin: Measure = { 10 }
         private(set) static var videoMarkVideLeftMargin: Measure = { 8 }
-        private(set) static var cellProgressViewRadius: Measure = { 40 }
-        private(set) static var cellProgressViewLineWidth: Measure = { 10 }
+        private(set) static var cellProgressViewRadius: Measure = { 18 }
+        private(set) static var cellProgressViewLineWidth: Measure = { 4 }
+        private(set) static var automaticallyFetchVideoIfHas: Bool = true
         
         private static func _update(_ item: UIItem) {
             switch item {
@@ -85,6 +88,8 @@ public extension TanImagePicker {
                 cellProgressViewRadius = radius
             case .cellProgressViewLineWidth(let width):
                 cellProgressViewLineWidth = width
+            case .automaticallyFetchVideoIfHas(let ok):
+                automaticallyFetchVideoIfHas = ok
             }
         }
         

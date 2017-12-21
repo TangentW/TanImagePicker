@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA1AF5261FEB80D800E2B8F6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = BA1AF5281FEB80D800E2B8F6 /* Localizable.strings */; };
 		BA874F621FE8C31800E69991 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA874F611FE8C31800E69991 /* Tools.swift */; };
 		BA874F651FE8C4D500E69991 /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA874F641FE8C4D500E69991 /* UI.swift */; };
 		BA874F671FE8E97000E69991 /* ImagesAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA874F661FE8E97000E69991 /* ImagesAdapter.swift */; };
@@ -21,22 +22,15 @@
 		BAED8FC61FE8C16100DBF63E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BAED8FC41FE8C16100DBF63E /* Main.storyboard */; };
 		BAED8FC81FE8C16100DBF63E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BAED8FC71FE8C16100DBF63E /* Assets.xcassets */; };
 		BAED8FCB1FE8C16100DBF63E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BAED8FC91FE8C16100DBF63E /* LaunchScreen.storyboard */; };
-		BAED8FD61FE8C16100DBF63E /* TanImagePickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED8FD51FE8C16100DBF63E /* TanImagePickerTests.swift */; };
 		BAED8FE21FE8C1E000DBF63E /* ImagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED8FE11FE8C1E000DBF63E /* ImagesManager.swift */; };
 		BAED8FE41FE8C1F700DBF63E /* TanImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED8FE31FE8C1F700DBF63E /* TanImagePicker.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		BAED8FD21FE8C16100DBF63E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BAED8FB51FE8C16100DBF63E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BAED8FBC1FE8C16100DBF63E;
-			remoteInfo = TanImagePicker;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
+		BA1AF5221FEB80BD00E2B8F6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		BA1AF5231FEB80BD00E2B8F6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		BA1AF5271FEB80D800E2B8F6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		BA1AF5291FEB80DB00E2B8F6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		BA874F611FE8C31800E69991 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		BA874F641FE8C4D500E69991 /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
 		BA874F661FE8E97000E69991 /* ImagesAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesAdapter.swift; sourceTree = "<group>"; };
@@ -53,9 +47,6 @@
 		BAED8FC71FE8C16100DBF63E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BAED8FCA1FE8C16100DBF63E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BAED8FCC1FE8C16100DBF63E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BAED8FD11FE8C16100DBF63E /* TanImagePickerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TanImagePickerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BAED8FD51FE8C16100DBF63E /* TanImagePickerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TanImagePickerTests.swift; sourceTree = "<group>"; };
-		BAED8FD71FE8C16100DBF63E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BAED8FE11FE8C1E000DBF63E /* ImagesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesManager.swift; sourceTree = "<group>"; };
 		BAED8FE31FE8C1F700DBF63E /* TanImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TanImagePicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,16 +59,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BAED8FCE1FE8C16100DBF63E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BA1AF51F1FEB7F2400E2B8F6 /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				BAED8FC91FE8C16100DBF63E /* LaunchScreen.storyboard */,
+				BAED8FCC1FE8C16100DBF63E /* Info.plist */,
+				BAED8FC01FE8C16100DBF63E /* AppDelegate.swift */,
+				BAED8FC21FE8C16100DBF63E /* ViewController.swift */,
+				BAED8FC41FE8C16100DBF63E /* Main.storyboard */,
+			);
+			path = Demo;
+			sourceTree = "<group>";
+		};
 		BA874F631FE8C49500E69991 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -100,7 +96,6 @@
 			isa = PBXGroup;
 			children = (
 				BAED8FBF1FE8C16100DBF63E /* TanImagePicker */,
-				BAED8FD41FE8C16100DBF63E /* TanImagePickerTests */,
 				BAED8FBE1FE8C16100DBF63E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,7 +104,6 @@
 			isa = PBXGroup;
 			children = (
 				BAED8FBD1FE8C16100DBF63E /* TanImagePicker.app */,
-				BAED8FD11FE8C16100DBF63E /* TanImagePickerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,24 +111,12 @@
 		BAED8FBF1FE8C16100DBF63E /* TanImagePicker */ = {
 			isa = PBXGroup;
 			children = (
+				BA1AF51F1FEB7F2400E2B8F6 /* Demo */,
 				BA874F631FE8C49500E69991 /* Classes */,
-				BAED8FC01FE8C16100DBF63E /* AppDelegate.swift */,
-				BAED8FC21FE8C16100DBF63E /* ViewController.swift */,
-				BAED8FC41FE8C16100DBF63E /* Main.storyboard */,
 				BAED8FC71FE8C16100DBF63E /* Assets.xcassets */,
-				BAED8FC91FE8C16100DBF63E /* LaunchScreen.storyboard */,
-				BAED8FCC1FE8C16100DBF63E /* Info.plist */,
+				BA1AF5281FEB80D800E2B8F6 /* Localizable.strings */,
 			);
 			path = TanImagePicker;
-			sourceTree = "<group>";
-		};
-		BAED8FD41FE8C16100DBF63E /* TanImagePickerTests */ = {
-			isa = PBXGroup;
-			children = (
-				BAED8FD51FE8C16100DBF63E /* TanImagePickerTests.swift */,
-				BAED8FD71FE8C16100DBF63E /* Info.plist */,
-			);
-			path = TanImagePickerTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -157,24 +139,6 @@
 			productReference = BAED8FBD1FE8C16100DBF63E /* TanImagePicker.app */;
 			productType = "com.apple.product-type.application";
 		};
-		BAED8FD01FE8C16100DBF63E /* TanImagePickerTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BAED8FDD1FE8C16100DBF63E /* Build configuration list for PBXNativeTarget "TanImagePickerTests" */;
-			buildPhases = (
-				BAED8FCD1FE8C16100DBF63E /* Sources */,
-				BAED8FCE1FE8C16100DBF63E /* Frameworks */,
-				BAED8FCF1FE8C16100DBF63E /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BAED8FD31FE8C16100DBF63E /* PBXTargetDependency */,
-			);
-			name = TanImagePickerTests;
-			productName = TanImagePickerTests;
-			productReference = BAED8FD11FE8C16100DBF63E /* TanImagePickerTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -189,11 +153,6 @@
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 					};
-					BAED8FD01FE8C16100DBF63E = {
-						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
-						TestTargetID = BAED8FBC1FE8C16100DBF63E;
-					};
 				};
 			};
 			buildConfigurationList = BAED8FB81FE8C16100DBF63E /* Build configuration list for PBXProject "TanImagePicker" */;
@@ -203,6 +162,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = BAED8FB41FE8C16100DBF63E;
 			productRefGroup = BAED8FBE1FE8C16100DBF63E /* Products */;
@@ -210,7 +170,6 @@
 			projectRoot = "";
 			targets = (
 				BAED8FBC1FE8C16100DBF63E /* TanImagePicker */,
-				BAED8FD01FE8C16100DBF63E /* TanImagePickerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -221,15 +180,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BAED8FCB1FE8C16100DBF63E /* LaunchScreen.storyboard in Resources */,
+				BA1AF5261FEB80D800E2B8F6 /* Localizable.strings in Resources */,
 				BAED8FC81FE8C16100DBF63E /* Assets.xcassets in Resources */,
 				BAED8FC61FE8C16100DBF63E /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BAED8FCF1FE8C16100DBF63E /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,29 +209,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BAED8FCD1FE8C16100DBF63E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BAED8FD61FE8C16100DBF63E /* TanImagePickerTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		BAED8FD31FE8C16100DBF63E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BAED8FBC1FE8C16100DBF63E /* TanImagePicker */;
-			targetProxy = BAED8FD21FE8C16100DBF63E /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXVariantGroup section */
+		BA1AF5281FEB80D800E2B8F6 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BA1AF5271FEB80D800E2B8F6 /* en */,
+				BA1AF5291FEB80DB00E2B8F6 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		BAED8FC41FE8C16100DBF63E /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				BAED8FC51FE8C16100DBF63E /* Base */,
+				BA1AF5231FEB80BD00E2B8F6 /* zh-Hans */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -287,6 +234,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				BAED8FCA1FE8C16100DBF63E /* Base */,
+				BA1AF5221FEB80BD00E2B8F6 /* zh-Hans */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -298,6 +246,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -355,6 +304,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -407,7 +357,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9PA6Z533LV;
-				INFOPLIST_FILE = TanImagePicker/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/TanImagePicker/Demo/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = personal.tangent.TanImagePicker;
@@ -423,47 +373,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9PA6Z533LV;
-				INFOPLIST_FILE = TanImagePicker/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/TanImagePicker/Demo/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = personal.tangent.TanImagePicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		BAED8FDE1FE8C16100DBF63E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9PA6Z533LV;
-				INFOPLIST_FILE = TanImagePickerTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = personal.tangent.TanImagePickerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TanImagePicker.app/TanImagePicker";
-			};
-			name = Debug;
-		};
-		BAED8FDF1FE8C16100DBF63E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9PA6Z533LV;
-				INFOPLIST_FILE = TanImagePickerTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = personal.tangent.TanImagePickerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TanImagePicker.app/TanImagePicker";
 			};
 			name = Release;
 		};
@@ -484,15 +400,6 @@
 			buildConfigurations = (
 				BAED8FDB1FE8C16100DBF63E /* Debug */,
 				BAED8FDC1FE8C16100DBF63E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		BAED8FDD1FE8C16100DBF63E /* Build configuration list for PBXNativeTarget "TanImagePickerTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BAED8FDE1FE8C16100DBF63E /* Debug */,
-				BAED8FDF1FE8C16100DBF63E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

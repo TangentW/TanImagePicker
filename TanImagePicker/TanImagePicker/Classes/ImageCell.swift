@@ -22,8 +22,7 @@ extension TanImagePicker {
         }
         
         deinit {
-            _cancalImageFecthing()
-            _playerView.clear()
+            _clear()
         }
         
         required init?(coder aDecoder: NSCoder) {
@@ -66,14 +65,16 @@ extension TanImagePicker {
         // For Image
         private var _imageRequestID: PHImageRequestID?
         // For Video
+        private var _videoRequestID: PHImageRequestID?
         private var _isScrolling = true
         
-        var shouldBindItemStatus: Bool = true
+        var isContentViewCell: Bool = true
         
         var item: ImageItem? {
             didSet {
                 guard let item = item else { return }
                 _beginFetchImage(item)
+                _beginFetchVideo(item)
                 _bindItem(item)
             }
         }
@@ -94,29 +95,23 @@ extension TanImagePicker.ImageCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        _cancalImageFecthing()
-        _playerView.clear()
-        if let oldItem = item { _unbindItem(oldItem) }
+        _clear()
     }
 }
 
 private extension TanImagePicker.ImageCell {
     func _unbindItem(_ item: Me.ImageItem) {
-        guard shouldBindItemStatus, item.bindedCell === self else { return }
+        guard isContentViewCell, item.bindedCell === self else { return }
         item.selectedStateCallback = nil
         item.canSelectedCallback = nil
-        item.videoDownloadingStateCallback = nil
     }
     
     func _bindItem(_ item: Me.ImageItem) {
-        guard shouldBindItemStatus else { return }
+        guard isContentViewCell else { return }
         _checkView.refresh(isSelected: item.isSelected)
         _checkView.isHidden = !item.canSelected
         _videoMarkView.isHidden = !item.isVideo
-        _playerView.isHidden = !item.isVideo
         _progressView.isHidden = !item.isVideo
-        
-        item.downloadVideoIfHas()
         
         item.selectedStateCallback = { [weak self] in
             self?._checkView.refresh(isSelected: $0)
@@ -124,20 +119,33 @@ private extension TanImagePicker.ImageCell {
         item.canSelectedCallback = { [weak self] in
             self?._checkView.isHidden = !$0
         }
-        item.videoDownloadingStateCallback = { [weak self] state in
-            print(state)
-            switch state {
-            case .progress(let progress):
-                self?._progressView.progress = progress
-            case .completed(let video):
-                self?._playerView.video = video
-                if self?._isScrolling == false { self?._playerView.play() }
-                fallthrough
-            case .cancel:
-                self?._progressView.isHidden = true
-            }
-        }
         item.bindedCell = self
+    }
+    
+    func _beginFetchVideo(_ item: Me.ImageItem) {
+        guard item.isVideo, Me.UI.automaticallyFetchVideoIfHas else { return }
+        _videoRequestID = Me.ImagesManager.shared.fetchVideo(with: item.asset, progressHandler: { [weak self] progress, _ in
+            Me.mainQueue.async {
+                self?._progressView.progress = progress
+            }
+        }, completionHandler: { [weak self] video in
+            Me.mainQueue.async {
+                self?._progressView.isHidden = true
+                self?._playerView.isHidden = false
+                self?._playerView.video = video
+                if self?.isContentViewCell == false || self?._isScrolling == false {
+                    self?._playerView.play()
+                }
+            }
+        })
+    }
+    
+    func _cancelVideoFetching() {
+        _playerView.isHidden = true
+        if let videoRequestID = _videoRequestID {
+            PHImageManager.default().cancelImageRequest(videoRequestID)
+        }
+        _playerView.clear()
     }
     
     func _beginFetchImage(_ item: Me.ImageItem) {
@@ -147,10 +155,16 @@ private extension TanImagePicker.ImageCell {
     }
     
     func _cancalImageFecthing() {
-        _imageView.image = nil
         if let imageRequestID = _imageRequestID {
             PHImageManager.default().cancelImageRequest(imageRequestID)
         }
+        _imageView.image = nil
+    }
+    
+    func _clear() {
+        if let oldItem = item { _unbindItem(oldItem) }
+        _cancalImageFecthing()
+        _cancelVideoFetching()
     }
 }
 
@@ -170,6 +184,7 @@ extension TanImagePicker.ImageCell {
     }
     
     func switchScrollingState(isScrolling: Bool) {
+        guard isContentViewCell else { return }
         _isScrolling = isScrolling
         if isScrolling {
             _playerView.pause()
@@ -228,23 +243,22 @@ private extension TanImagePicker.ImageCell {
             _playerLayer.frame = bounds
         }
         
-        var video: AVAsset? {
-            didSet {
-                guard let video = video else { return }
-                video.loadValuesAsynchronously(forKeys: ["playable"], completionHandler: { [weak self] in
-                    let item = AVPlayerItem(asset: video)
-                    self?._player.replaceCurrentItem(with: item)
-                    self?._loopToPlay(item: item)
-                })
-            }
-        }
+        var video: AVAsset?
     }
 }
 
 extension TanImagePicker.ImageCell._PlayeView {
     func play() {
-        guard let item = _player.currentItem, item.status == .readyToPlay else { return }
-        _player.play()
+        if _player.currentItem != nil {
+            _player.play()
+        } else if let mVideo = video {
+            mVideo.loadValuesAsynchronously(forKeys: ["playable"], completionHandler: { [weak self] in
+                let item = AVPlayerItem(asset: mVideo)
+                self?._player.replaceCurrentItem(with: item)
+                self?._loopToPlay(item: item)
+                self?._player.play()
+            })
+        }
     }
     
     func pause() {
@@ -258,6 +272,7 @@ extension TanImagePicker.ImageCell._PlayeView {
     func clear() {
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: nil)
         _player.replaceCurrentItem(with: nil)
+        video = nil
     }
 }
 
@@ -287,7 +302,7 @@ private extension TanImagePicker.ImageCell {
             layer.addSublayer(_shapeLayer)
             _shapeLayer.path = _path
             layer.shadowColor = UIColor.black.cgColor
-            layer.shadowRadius = 1.2
+            layer.shadowRadius = 1.8
             layer.shadowOpacity = 0.2
             layer.shadowOffset = CGSize(width: 1, height: 1)
         }

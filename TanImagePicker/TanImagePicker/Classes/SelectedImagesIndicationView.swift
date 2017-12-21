@@ -38,7 +38,7 @@ public extension TanImagePicker {
         
         private lazy var _originalImagesCheckbox: UIButton = {
             let button = UIButton()
-            button.setTitle("原图", for: .normal)
+            button.setTitle("Original".localizedString, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 13)
             button.setTitleColor(.darkGray, for: .normal)
             button.setImage(UIImage(named: "check_box")?.withRenderingMode(.alwaysOriginal), for: .normal)
@@ -126,7 +126,7 @@ extension TanImagePicker.SelectedImagesIndicationView.SelectedItemsProvider: UIC
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Me.ImageCell.identifier, for: indexPath) as! Me.ImageCell
-        cell.shouldBindItemStatus = false
+        cell.isContentViewCell = false
         cell.item = _selectedItems[indexPath.item]
         return cell
     }

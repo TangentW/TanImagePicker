@@ -28,3 +28,15 @@ extension ReusableView {
         return String(describing: self)
     }
 }
+
+extension Bundle {
+    static var myBundle: Bundle {
+        return Bundle(for: TanImagePicker.self)
+    }
+}
+
+extension String {
+    var localizedString: String {
+        return NSLocalizedString(self, bundle: Bundle.myBundle, comment: "")
+    }
+}
