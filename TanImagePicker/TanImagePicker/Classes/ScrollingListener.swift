@@ -33,7 +33,8 @@ extension TanImagePicker {
         }
         
         deinit {
-            CFRunLoopRemoveObserver(CFRunLoopGetMain(), _runloopObserver, .defaultMode)
+            guard let observer = _runloopObserver else { return }
+            CFRunLoopRemoveObserver(CFRunLoopGetMain(), observer, .defaultMode)
         }
         
         // isScrolling
