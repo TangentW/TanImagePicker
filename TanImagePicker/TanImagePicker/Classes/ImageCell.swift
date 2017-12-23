@@ -125,11 +125,11 @@ private extension TanImagePicker.ImageCell {
     func _beginFetchVideo(_ item: Me.ImageItem) {
         guard item.isVideo, Me.UI.automaticallyFetchVideoIfHas else { return }
         _videoRequestID = Me.ImagesManager.shared.fetchVideo(with: item.asset, progressHandler: { [weak self] progress, _ in
-            Me.mainQueue.async {
+            Me.inMainQueue {
                 self?._progressView.progress = progress
             }
         }, completionHandler: { [weak self] video in
-            Me.mainQueue.async {
+            Me.inMainQueue {
                 self?._progressView.isHidden = true
                 self?._playerView.isHidden = false
                 self?._playerView.video = video

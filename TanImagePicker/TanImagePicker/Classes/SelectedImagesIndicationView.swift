@@ -99,7 +99,8 @@ extension TanImagePicker.SelectedImagesIndicationView {
         func refresh(_ selectedItems: [Me.ImageItem]) {
             _selectedItems = selectedItems
             _collectionView?.reloadData()
-            Me.mainQueue.async {
+            // Put following code to next runloop cycle.
+            Me.inMainQueue {
                 guard self._selectedItems.count > 0 else { return }
                 self._collectionView?.scrollToItem(at: IndexPath(item: self._selectedItems.count - 1, section: 0), at: .right, animated: true)
             }

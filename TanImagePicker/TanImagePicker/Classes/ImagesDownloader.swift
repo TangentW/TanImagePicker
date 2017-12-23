@@ -32,10 +32,10 @@ fileprivate extension Array where Element == PHAsset {
         let cancel = { isStopped = true; stateCallback?(.cancel) }
         var totalProgress: [PHAsset: Double] = [:]
         
-        Me.asyncQueue.async {
+        Me.inAsyncQueue {
             self.forEach { asset in
                 asset._download(progressHandler: { progress, stop in
-                    Me.mainQueue.async {
+                    Me.inMainQueue {
                         if isStopped { stop.pointee = ObjCBool(isStopped) }
                         else {
                             totalProgress[asset] = progress
@@ -45,7 +45,7 @@ fileprivate extension Array where Element == PHAsset {
                     }
                 })
             }
-            Me.mainQueue.async {
+            Me.inMainQueue {
                 if !isStopped { stateCallback?(.completed(self)) }
             }
         }

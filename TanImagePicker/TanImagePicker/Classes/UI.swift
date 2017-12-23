@@ -49,7 +49,7 @@ extension TanImagePicker.UIItem: Hashable {
     }
 }
 
-public extension TanImagePicker {
+extension TanImagePicker {
     struct UI {
         private(set) static var backgroundColor: UIColor = .white
         private(set) static var imageMargin: Measure = { 2 }

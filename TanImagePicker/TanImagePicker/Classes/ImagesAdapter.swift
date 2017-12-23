@@ -35,14 +35,14 @@ extension TanImagePicker.ImagesAdapter {
         
         _scrollingListeners.removeAll(keepingCapacity: true)
         
-        Me.asyncQueue.async {
+        Me.inAsyncQueue {
             let items = Me.ImagesManager.shared.fetchRecentAssets(mediaOption: mediaOption, limit: imagesLimit).map(Me.ImageItem.init)
             if selectedLimit == 0 { items.forEach { $0.canSelected = false } }
-            Me.mainQueue.async {
+            Me.inMainQueue {
                 self._items = items
                 collectionView.reloadData()
                 // For layout ImageCell's mark view.
-                Me.mainQueue.async { self.scrollViewDidScroll(collectionView) }
+                Me.inMainQueue { self.scrollViewDidScroll(collectionView) }
             }
         }
     }

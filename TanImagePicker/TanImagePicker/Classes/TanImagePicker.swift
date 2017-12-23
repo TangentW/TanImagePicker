@@ -76,6 +76,15 @@ public class TanImagePicker {
     public func clear() {
         _adapter.clearSelectedItems()
     }
+    
+    // File size
+    public func _calcSelectedAssetsSize(_ completionHandler: @escaping (Int) -> ()) {
+        selectedAssets.calcSize(completionHandler: completionHandler)
+    }
+    
+    public func _calcSelectedAssetsSizeString(_ completionHandler: @escaping (String) -> ()) {
+        _calcSelectedAssetsSize { completionHandler($0.sizeString) }
+    }
 }
 
 public extension TanImagePicker {
@@ -106,4 +115,14 @@ typealias Me = TanImagePicker
 extension TanImagePicker {
     static let mainQueue = DispatchQueue.main
     static let asyncQueue = DispatchQueue(label: "TanImagePickerQueue")
+}
+
+extension TanImagePicker {
+    static func inMainQueue(_ todo: @escaping () -> ()) {
+        Me.mainQueue.async(execute: todo)
+    }
+
+    static func inAsyncQueue(_ todo: @escaping () -> ()) {
+        Me.asyncQueue.async(execute: todo)
+    }
 }
