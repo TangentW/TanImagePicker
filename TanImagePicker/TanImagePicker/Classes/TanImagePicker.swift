@@ -78,12 +78,12 @@ public class TanImagePicker {
     }
     
     // File size
-    public func _calcSelectedAssetsSize(_ completionHandler: @escaping (Int) -> ()) {
+    public func calcSelectedAssetsSize(_ completionHandler: @escaping (Int) -> ()) {
         selectedAssets.calcSize(completionHandler: completionHandler)
     }
     
-    public func _calcSelectedAssetsSizeString(_ completionHandler: @escaping (String) -> ()) {
-        _calcSelectedAssetsSize { completionHandler($0.sizeString) }
+    public func calcSelectedAssetsSizeString(_ completionHandler: @escaping (String) -> ()) {
+        calcSelectedAssetsSize { completionHandler($0.sizeString) }
     }
 }
 
