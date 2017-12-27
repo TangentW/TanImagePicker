@@ -12,7 +12,9 @@ extension TanImagePicker {
     final class ImagesAdapter: NSObject {
         private var _items: [ImageItem] = []
         private var _scrollingListeners: Set<ImageCell> = []
-        private var _selectedLimit: Int = 0
+        private var _mediaOption: Me.MediaOption = .all
+        private var _imagesLimit = 0
+        private var _selectedLimit = 0
         
         private weak var _collectionView: UICollectionView?
         private weak var _customView: UIView?
@@ -23,23 +25,29 @@ extension TanImagePicker {
 }
 
 extension TanImagePicker.ImagesAdapter {
-    func load(mediaOption: Me.MediaOption, imagesLimit: Int, selectedLimit: Int, collectionView: UICollectionView, customView: UIView?) {
+    func setup(mediaOption: Me.MediaOption, imagesLimit: Int, selectedLimit: Int, collectionView: UICollectionView, customView: UIView?) {
+        _mediaOption = mediaOption
+        _imagesLimit = imagesLimit
+        _selectedLimit = selectedLimit
         _collectionView = collectionView
         _customView = customView
-        _selectedLimit = selectedLimit
         
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(Me.ImageCell.self, forCellWithReuseIdentifier: Me.ImageCell.identifier)
         collectionView.register(Me.CustomViewContainer.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: Me.CustomViewContainer.identifier)
-        
+    }
+    
+    func load() {
+        guard let collectionView = _collectionView else { return }
+        let (mediaOption, imagesLimit, selectedLimit) = (_mediaOption, _imagesLimit, _selectedLimit)
         _scrollingListeners.removeAll(keepingCapacity: true)
-        
         Me.inAsyncQueue {
             let items = Me.ImagesManager.shared.fetchRecentAssets(mediaOption: mediaOption, limit: imagesLimit).map(Me.ImageItem.init)
             if selectedLimit == 0 { items.forEach { $0.canSelected = false } }
             Me.inMainQueue {
                 self._items = items
+                collectionView.contentOffset.x = 0
                 collectionView.reloadData()
                 // For layout ImageCell's mark view.
                 Me.inMainQueue { self.scrollViewDidScroll(collectionView) }

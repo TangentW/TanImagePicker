@@ -37,9 +37,10 @@ public class TanImagePicker {
         _didSelectedAssets = didSelectedAssets
         
         contentView.needsLoadData = { [weak self] in
-            self?._adapter.load(mediaOption: mediaOption, imagesLimit: imagesLimit,
+            self?._adapter.setup(mediaOption: mediaOption, imagesLimit: imagesLimit,
                                 selectedLimit: selectedLimit,
                                 collectionView: $0, customView: $1)
+            self?._adapter.load()
             self?._scrollingListener.listen()
         }
         
@@ -75,6 +76,10 @@ public class TanImagePicker {
     
     public func clear() {
         _adapter.clearSelectedItems()
+    }
+    
+    public func reloadAssets() {
+        _adapter.load()
     }
     
     // File size
