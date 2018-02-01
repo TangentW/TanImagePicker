@@ -39,7 +39,7 @@ public class TanImagePicker {
         contentView.needsLoadData = { [weak self] in
             self?._adapter.setup(mediaOption: mediaOption, imagesLimit: imagesLimit,
                                 selectedLimit: selectedLimit,
-                                collectionView: $0, customView: $1)
+                                contentView: $0, customView: $1)
             self?._adapter.load()
             self?._scrollingListener.listen()
         }

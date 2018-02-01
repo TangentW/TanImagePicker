@@ -30,7 +30,7 @@ public extension TanImagePicker {
             return layout
         }()
         
-        var needsLoadData: ((UICollectionView, UIView?) -> ())?
+        var needsLoadData: ((ContentView, UIView?) -> ())?
     }
 }
 
@@ -41,7 +41,7 @@ extension TanImagePicker.ContentView {
         collectionView?.showsVerticalScrollIndicator = false
         collectionView?.showsHorizontalScrollIndicator = false
         _setupCustomViewController()
-        if let cv = collectionView { needsLoadData?(cv, _customViewController?.view) }
+        needsLoadData?(self, _customViewController?.view)
         if _customViewController != nil {
             _layout.headerReferenceSize = CGSize(width: Me.UI.customViewControllerWidth(), height: 0)
         }

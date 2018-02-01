@@ -103,7 +103,7 @@ public extension TanImagePicker.ImagesManager {
 }
 
 extension TanImagePicker.ImagesManager {
-    func fetchRecentAssets(mediaOption: TanImagePicker.MediaOption = .all, limit: Int = 0) -> [PHAsset] {
+    func fetchRecentAssets(mediaOption: Me.MediaOption = .all, limit: Int = 0) -> [PHAsset] {
         let fetchOption = PHFetchOptions()
         if let predicate = NSPredicate(mediaOption: mediaOption) {
             fetchOption.predicate = predicate
@@ -119,7 +119,7 @@ extension TanImagePicker.ImagesManager {
 }
 
 fileprivate extension NSPredicate {
-    convenience init?(mediaOption: TanImagePicker.MediaOption) {
+    convenience init?(mediaOption: Me.MediaOption) {
         switch mediaOption {
         case .photo:
             self.init(format: "mediaType == %d", PHAssetMediaType.image.rawValue)

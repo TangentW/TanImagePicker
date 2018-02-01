@@ -40,7 +40,7 @@ extension TanImagePicker {
 }
 
 extension TanImagePicker.ImageItem: Hashable {
-    static func ==(lhs: TanImagePicker.ImageItem, rhs: TanImagePicker.ImageItem) -> Bool {
+    static func ==(lhs: Me.ImageItem, rhs: Me.ImageItem) -> Bool {
         return lhs.asset == rhs.asset
     }
     

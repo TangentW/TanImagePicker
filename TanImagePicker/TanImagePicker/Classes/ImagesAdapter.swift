@@ -16,6 +16,7 @@ extension TanImagePicker {
         private var _imagesLimit = 0
         private var _selectedLimit = 0
         
+        private weak var _contentView: ContentView?
         private weak var _collectionView: UICollectionView?
         private weak var _customView: UIView?
         
@@ -25,10 +26,12 @@ extension TanImagePicker {
 }
 
 extension TanImagePicker.ImagesAdapter {
-    func setup(mediaOption: Me.MediaOption, imagesLimit: Int, selectedLimit: Int, collectionView: UICollectionView, customView: UIView?) {
+    func setup(mediaOption: Me.MediaOption, imagesLimit: Int, selectedLimit: Int, contentView: Me.ContentView, customView: UIView?) {
         _mediaOption = mediaOption
         _imagesLimit = imagesLimit
         _selectedLimit = selectedLimit
+        _contentView = contentView
+        let collectionView: UICollectionView = contentView.collectionView!
         _collectionView = collectionView
         _customView = customView
         
@@ -36,6 +39,10 @@ extension TanImagePicker.ImagesAdapter {
         collectionView.delegate = self
         collectionView.register(Me.ImageCell.self, forCellWithReuseIdentifier: Me.ImageCell.identifier)
         collectionView.register(Me.CustomViewContainer.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: Me.CustomViewContainer.identifier)
+        
+        if contentView.traitCollection.forceTouchCapability == .available {
+            contentView.registerForPreviewing(with: self, sourceView: collectionView)
+        }
     }
     
     func load() {
@@ -150,5 +157,24 @@ extension TanImagePicker {
             super.layoutSubviews()
             customView?.frame = bounds
         }
+    }
+}
+
+// MARK: - 3D Touch
+extension TanImagePicker.ImagesAdapter: UIViewControllerPreviewingDelegate {
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard
+            let collectionView = _collectionView,
+            let indexPath = collectionView.indexPathForItem(at: location),
+            let sourceRect = collectionView.cellForItem(at: indexPath)?.frame
+        else { return nil }
+        previewingContext.sourceRect = sourceRect
+        let item = _items[indexPath.item]
+        return TanImagePicker.PreviewController(item: item)
+    }
+
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        // Do nothing
+        // 3D Touch only for preview images.
     }
 }
