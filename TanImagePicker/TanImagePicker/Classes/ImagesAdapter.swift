@@ -163,6 +163,7 @@ extension TanImagePicker {
 // MARK: - 3D Touch
 extension TanImagePicker.ImagesAdapter: UIViewControllerPreviewingDelegate {
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        if _contentView?.parent is UIInputViewController { return nil }
         guard
             let collectionView = _collectionView,
             let indexPath = collectionView.indexPathForItem(at: location),
