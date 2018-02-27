@@ -17,6 +17,10 @@ public class TanImagePicker {
     }
     public private(set) var shouldSendOriginalImages = false
     
+    // For AVAudioSession
+    private var _preNormalAudioSessionCategoryOptions: (String, AVAudioSessionCategoryOptions)?
+    private var _preSetupAudioSessionCategoryOptions: (String, AVAudioSessionCategoryOptions)?
+    
     public let contentView: ContentView
     public let indicationView: SelectedImagesIndicationView
     
@@ -64,6 +68,12 @@ public class TanImagePicker {
         _scrollingListener.stateChanged = { [weak self] in
             self?._adapter.switchScrollingState(isScrolling: $0)
         }
+        
+        _setupAudioSession(true)
+    }
+    
+    deinit {
+        _setupAudioSession(false)
     }
     
     public func finishPickingImages(stateCallback: DownloadingStateCallback<[PHAsset]>? = nil) {
@@ -129,5 +139,32 @@ extension TanImagePicker {
 
     static func inAsyncQueue(_ todo: @escaping () -> ()) {
         Me.asyncQueue.async(execute: todo)
+    }
+}
+
+// MARK: - Audio
+private extension TanImagePicker {
+    func _setupAudioSession(_ flag: Bool) {
+        // For Ok
+        let session = AVAudioSession.sharedInstance()
+        if flag {
+            _preNormalAudioSessionCategoryOptions = (session.category, session.categoryOptions)
+            switch session.category {
+            case AVAudioSessionCategoryAmbient: ()
+            case AVAudioSessionCategoryPlayAndRecord,
+                 AVAudioSessionCategoryPlayback
+                where !session.categoryOptions.contains(.mixWithOthers):
+                try? session.setCategory(session.category, with: [session.categoryOptions, .mixWithOthers])
+            default:
+                try? session.setCategory(AVAudioSessionCategoryAmbient)
+            }
+            _preSetupAudioSessionCategoryOptions = (session.category, session.categoryOptions)
+        }
+        else {
+            if let preSetup = _preSetupAudioSessionCategoryOptions, preSetup != (session.category, session.categoryOptions) { return }
+            guard let preNormal = _preNormalAudioSessionCategoryOptions else { return }
+            try? session.setCategory(preNormal.0, with: preNormal.1)
+            (_preNormalAudioSessionCategoryOptions, _preSetupAudioSessionCategoryOptions) = (nil, nil)
+        }
     }
 }
