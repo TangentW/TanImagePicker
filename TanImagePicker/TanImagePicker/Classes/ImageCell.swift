@@ -8,7 +8,9 @@
 
 import UIKit
 import Photos
+import PhotosUI
 
+private var _livePhotoPlayerKey: UInt8 = 23
 extension TanImagePicker {
     final class ImageCell: UICollectionViewCell, ReusableView {
         override init(frame: CGRect) {
@@ -16,6 +18,9 @@ extension TanImagePicker {
             backgroundColor = UI.backgroundColor
             contentView.addSubview(_imageView)
             contentView.addSubview(_playerView)
+            if #available(iOS 9.1, *) {
+                contentView.addSubview(_livePhotoPlayer)
+            }
             contentView.addSubview(_progressView)
             contentView.addSubview(_checkView)
             contentView.addSubview(_videoMarkView)
@@ -56,6 +61,16 @@ extension TanImagePicker {
             return $0
         }(_PlayeView())
         
+        @available(iOS 9.1, *)
+        private var _livePhotoPlayer: _LivePhotoPlayer {
+            return (objc_getAssociatedObject(self, &_livePhotoPlayerKey) as? _LivePhotoPlayer)
+                ?? {
+                    let result = _LivePhotoPlayer()
+                    objc_setAssociatedObject(self, &_livePhotoPlayerKey, result, .OBJC_ASSOCIATION_RETAIN)
+                    return result
+                }()
+        }
+        
         private let _progressView: _ProgressView = {
             $0.autoresizingMask = [.flexibleTopMargin, .flexibleBottomMargin, .flexibleLeftMargin, .flexibleRightMargin]
             $0.isHidden = true
@@ -64,8 +79,8 @@ extension TanImagePicker {
         
         // For Image
         private var _imageRequestID: PHImageRequestID?
-        // For Video
-        private var _videoRequestID: PHImageRequestID?
+        // For Video Or Live Photo
+        private var _videoOrLivePhotoRequestID: PHImageRequestID?
         private var _isScrolling = true
         
         var isContentViewCell: Bool = true
@@ -74,7 +89,7 @@ extension TanImagePicker {
             didSet {
                 guard let item = item else { return }
                 _beginFetchImage(item)
-                _beginFetchVideo(item)
+                _beginFetchVideoOrLivePhoto(item)
                 _bindItem(item)
             }
         }
@@ -91,6 +106,9 @@ extension TanImagePicker.ImageCell {
         _videoMarkView.frame.origin.x = Me.UI.videoMarkVideLeftMargin()
         _playerView.frame = bounds
         _progressView.center = _playerView.center
+        if #available(iOS 9.1, *) {
+            _livePhotoPlayer.frame = bounds
+        }
     }
     
     override func prepareForReuse() {
@@ -110,8 +128,8 @@ private extension TanImagePicker.ImageCell {
         guard isContentViewCell else { return }
         _checkView.refresh(isSelected: item.isSelected)
         _checkView.isHidden = !item.canSelected
-        _videoMarkView.isHidden = !item.isVideo
-        _progressView.isHidden = !item.isVideo
+        _videoMarkView.isHidden = item.assetType == .normal
+        _progressView.isHidden = item.assetType == .normal
         
         item.selectedStateCallback = { [weak self] in
             self?._checkView.refresh(isSelected: $0)
@@ -122,30 +140,50 @@ private extension TanImagePicker.ImageCell {
         item.bindedCell = self
     }
     
-    func _beginFetchVideo(_ item: Me.ImageItem) {
-        guard item.isVideo, Me.UI.automaticallyFetchVideoIfHas else { return }
-        _videoRequestID = Me.ImagesManager.shared.fetchVideo(with: item.asset, progressHandler: { [weak self] progress, _ in
-            Me.inMainQueue {
-                self?._progressView.progress = progress
-            }
-        }, completionHandler: { [weak self] video in
-            Me.inMainQueue {
-                self?._progressView.isHidden = true
-                self?._playerView.isHidden = false
-                self?._playerView.video = video
-                if self?.isContentViewCell == false || self?._isScrolling == false {
-                    self?._playerView.play()
+    func _beginFetchVideoOrLivePhoto(_ item: Me.ImageItem) {
+        guard item.assetType == .video || item.assetType == .livePhoto, Me.UI.automaticallyFetchVideosOrLivePhotosIfHas else { return }
+        if item.assetType == .video {
+            _videoOrLivePhotoRequestID = Me.ImagesManager.shared.fetchVideo(with: item.asset, progressHandler: { [weak self] progress, _ in
+                Me.inMainQueue {
+                    self?._progressView.progress = progress
                 }
-            }
-        })
+            }, completionHandler: { [weak self] video in
+                    Me.inMainQueue {
+                        self?._progressView.isHidden = true
+                        self?._playerView.isHidden = false
+                        self?._playerView.video = video
+                        if self?.isContentViewCell == false || self?._isScrolling == false {
+                            self?._playerView.play()
+                        }
+                    }
+            })
+        }
+        else if #available(iOS 9.1, *), item.assetType == .livePhoto {
+            _videoOrLivePhotoRequestID = Me.ImagesManager.shared.fetchLivePhoto(with: item.asset, progressHandler: { [weak self] progress, _ in
+                Me.inMainQueue {
+                    self?._progressView.progress = progress
+                }
+            }, completionHandler: { [weak self] livePhoto in
+                    Me.inMainQueue {
+                        self?._progressView.isHidden = true
+                        self?._livePhotoPlayer.isHidden = false
+                        self?._livePhotoPlayer.livePhoto = livePhoto
+                        if self?.isContentViewCell == false || self?._isScrolling == false {
+                            self?._livePhotoPlayer.play()
+                        }
+                    }
+            })
+        }
     }
     
-    func _cancelVideoFetching() {
+    func _cancelVideoOrLivePhotoFetching() {
         _playerView.isHidden = true
-        if let videoRequestID = _videoRequestID {
+        if #available(iOS 9.1, *) { _livePhotoPlayer.isHidden = true }
+        if let videoRequestID = _videoOrLivePhotoRequestID {
             PHImageManager.default().cancelImageRequest(videoRequestID)
         }
         _playerView.clear()
+        if #available(iOS 9.1, *) { _livePhotoPlayer.livePhoto = nil }
     }
     
     func _beginFetchImage(_ item: Me.ImageItem) {
@@ -164,7 +202,7 @@ private extension TanImagePicker.ImageCell {
     func _clear() {
         if let oldItem = item { _unbindItem(oldItem) }
         _cancalImageFecthing()
-        _cancelVideoFetching()
+        _cancelVideoOrLivePhotoFetching()
     }
 }
 
@@ -188,8 +226,14 @@ extension TanImagePicker.ImageCell {
         _isScrolling = isScrolling
         if isScrolling {
             _playerView.pause()
+            if #available(iOS 9.1, *) {
+                _livePhotoPlayer.stop()
+            }
         } else {
             _playerView.play()
+            if #available(iOS 9.1, *) {
+                _livePhotoPlayer.play()
+            }
         }
     }
 }
@@ -283,6 +327,43 @@ private extension TanImagePicker.ImageCell._PlayeView {
     
     @objc func _playBack() {
         _player.seek(to: kCMTimeZero)
+        play()
+    }
+}
+
+// MARK: - LivePhotoPlayer
+@available(iOS 9.1, *)
+private extension TanImagePicker {
+    final class _LivePhotoPlayer: PHLivePhotoView {
+        private var _shouldLoopToPlay = false
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            delegate = self
+            isMuted = true
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        func play() {
+            guard livePhoto != nil else { return }
+            _shouldLoopToPlay = true
+            startPlayback(with: .full)
+        }
+        
+        func stop() {
+            _shouldLoopToPlay = false
+            stopPlayback()
+        }
+    }
+}
+
+@available(iOS 9.1, *)
+extension TanImagePicker._LivePhotoPlayer: PHLivePhotoViewDelegate {
+    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
+        guard _shouldLoopToPlay else { return }
         play()
     }
 }

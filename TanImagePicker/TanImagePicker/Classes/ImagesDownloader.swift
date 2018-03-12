@@ -55,13 +55,15 @@ fileprivate extension Array where Element == PHAsset {
 
 fileprivate extension PHAsset {
     func _download(progressHandler: @escaping (Double, UnsafeMutablePointer<ObjCBool>) -> ()) {
+        let group = DispatchGroup()
         if mediaType == .video {
-            let group = DispatchGroup()
             group.enter()
             Me.ImagesManager.shared.fetchVideo(with: self, progressHandler: progressHandler) { _ in group.leave() }
             group.wait()
-        } else {
-            Me.ImagesManager.shared.fetchImage(with: self, type: .original, isSynchronous: true, progressHandler: progressHandler) { _ in }
-        }
+        } else if #available(iOS 9.1, *), mediaSubtypes == .photoLive {
+            group.enter()
+            Me.ImagesManager.shared.fetchLivePhoto(with: self, progressHandler: progressHandler) { _ in group.leave() }
+            group.wait()
+        } else { Me.ImagesManager.shared.fetchImage(with: self, type: .original, isSynchronous: true, progressHandler: progressHandler) { _ in } }
     }
 }

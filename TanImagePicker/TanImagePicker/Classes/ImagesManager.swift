@@ -95,6 +95,56 @@ public extension TanImagePicker.ImagesManager {
     }
 }
 
+// For Live Photo
+@available(iOS 9.1, *)
+public extension TanImagePicker.ImagesManager {
+    @discardableResult
+    func fetchLivePhoto(with asset: PHAsset,
+                        progressHandler: DownloadProgressHandler? = nil,
+                        completionHandler: @escaping(PHLivePhoto?) -> ()) -> PHImageRequestID {
+        let options = PHLivePhotoRequestOptions()
+        options.deliveryMode = .highQualityFormat
+        options.isNetworkAccessAllowed = true
+        options.progressHandler = { progress, _, stop, _ in
+            progressHandler?(progress, stop)
+        }
+        return PHImageManager.default().requestLivePhoto(for: asset, targetSize: UIScreen.main.bounds.size, contentMode: .default, options: options) { livePhoto, info in
+            guard let livePhoto = livePhoto else { completionHandler(nil); return }
+            completionHandler(livePhoto)
+        }
+    }
+    
+    func fetchVideoURLFrom(livePhoto: PHLivePhoto,
+                           completionHandler: @escaping (URL?) -> ()) {
+        let name = "livePhoto" + "\(Date().timeIntervalSince1970)" + ".mov"
+        let videoPath = (NSTemporaryDirectory() as NSString).appendingPathComponent(name)
+        let videoURL = URL(fileURLWithPath: videoPath)
+        guard let videoResource = PHAssetResource.assetResources(for: livePhoto).first(where: { $0.type == .pairedVideo }) else {
+            completionHandler(nil); return
+        }
+        PHAssetResourceManager.default().writeData(for: videoResource, toFile: videoURL, options: nil) { error in
+            if let error = error {
+                completionHandler(nil)
+                print("TanImagePickerError! \(error)")
+            } else {
+                completionHandler(videoURL)
+            }
+        }
+    }
+    
+    @discardableResult
+    func fetchVideoURLFromLivePhoto(with asset: PHAsset,
+                                    progressHandler: DownloadProgressHandler? = nil,
+                                    completionHandler: @escaping (URL?) -> ()) -> PHImageRequestID {
+        return fetchLivePhoto(with: asset, progressHandler: progressHandler) { [weak self] in
+            guard let livePhoto = $0, let `self` = self else { completionHandler(nil); return }
+            self.fetchVideoURLFrom(livePhoto: livePhoto) {
+                completionHandler($0)
+            }
+        }
+    }
+}
+
 public extension TanImagePicker.ImagesManager {
     enum ImageFetchType {
         case thumbnail(size: CGSize)

@@ -8,6 +8,7 @@
 
 import UIKit
 import Photos
+import PhotosUI
 
 extension TanImagePicker {
     final class PreviewController: UIViewController {
@@ -58,6 +59,7 @@ extension TanImagePicker {
         }()
         
         private var _playerView: _PlayerView?
+        private var _livePhotoPlayer: UIView?
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -78,7 +80,7 @@ extension TanImagePicker {
                 }
             }
             
-            if _item.isVideo {
+            if _item.assetType == .video {
                 let asset = _item.asset
                 ImagesManager.shared.fetchVideo(with: asset, progressHandler: nil) { [weak self] video in
                     Me.inMainQueue {
@@ -88,6 +90,18 @@ extension TanImagePicker {
                     }
                 }
             }
+            else if #available(iOS 9.1, *), _item.assetType == .livePhoto {
+                let asset = _item.asset
+                ImagesManager.shared.fetchLivePhoto(with: asset, completionHandler: { [weak self] in
+                    guard let livePhoto = $0 else { return }
+                    Me.inMainQueue {
+                        let player = _LivePhotoPlayer(livePhoto: livePhoto)
+                        self?._livePhotoPlayer = player
+                        self?.view.addSubview(player)
+                        player.play()
+                    }
+                })
+            }
         }
         
         override func viewDidLayoutSubviews() {
@@ -95,6 +109,7 @@ extension TanImagePicker {
             _blurView.frame = view.bounds
             _imageView.frame = view.bounds
             _playerView?.frame = view.bounds
+            _livePhotoPlayer?.frame = view.bounds
         }
         
         private func _fetchSize() -> CGSize {
@@ -165,6 +180,27 @@ private extension TanImagePicker.PreviewController {
                 self?._player.seek(to: kCMTimeZero)
                 self?._play()
             }
+        }
+    }
+    
+    @available(iOS 9.1, *)
+    final class _LivePhotoPlayer: PHLivePhotoView, PHLivePhotoViewDelegate {
+        init(livePhoto: PHLivePhoto) {
+            super.init(frame: .zero)
+            self.livePhoto = livePhoto
+            delegate = self
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        func play() {
+            startPlayback(with: .full)
+        }
+        
+        func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
+            startPlayback(with: .full)
         }
     }
 }

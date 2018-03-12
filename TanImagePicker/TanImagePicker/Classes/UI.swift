@@ -62,7 +62,7 @@ extension TanImagePicker {
         private(set) static var videoMarkVideLeftMargin: Measure = { 8 }
         private(set) static var cellProgressViewRadius: Measure = { 18 }
         private(set) static var cellProgressViewLineWidth: Measure = { 4 }
-        private(set) static var automaticallyFetchVideoIfHas: Bool = true
+        private(set) static var automaticallyFetchVideosOrLivePhotosIfHas: Bool = true
         
         private static func _update(_ item: UIItem) {
             switch item {
@@ -89,7 +89,7 @@ extension TanImagePicker {
             case .cellProgressViewLineWidth(let width):
                 cellProgressViewLineWidth = width
             case .automaticallyFetchVideoIfHas(let ok):
-                automaticallyFetchVideoIfHas = ok
+                automaticallyFetchVideosOrLivePhotosIfHas = ok
             }
         }
         

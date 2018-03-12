@@ -12,11 +12,20 @@ import Photos
 extension TanImagePicker {
     final class ImageItem {
         let asset: PHAsset
-        let isVideo: Bool
+        let assetType: AssetType
         
         init(_ asset: PHAsset) {
             self.asset = asset
-            isVideo = asset.mediaType == .video
+            assetType = {
+                if asset.mediaType == .video {
+                    return .video
+                }
+                
+                if #available(iOS 9.1, *), asset.mediaSubtypes == .photoLive {
+                    return .livePhoto
+                }
+                return .normal
+            }()
         }
         
         // Status
@@ -46,5 +55,13 @@ extension TanImagePicker.ImageItem: Hashable {
     
     var hashValue: Int {
         return asset.hashValue
+    }
+}
+
+extension TanImagePicker.ImageItem {
+    enum AssetType {
+        case normal // Image
+        case video
+        case livePhoto
     }
 }
