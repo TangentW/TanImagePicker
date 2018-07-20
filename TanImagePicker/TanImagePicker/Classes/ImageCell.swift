@@ -128,7 +128,7 @@ private extension TanImagePicker.ImageCell {
         guard isContentViewCell else { return }
         _checkView.refresh(isSelected: item.isSelected)
         _checkView.isHidden = !item.canSelected
-        _videoMarkView.isHidden = item.assetType == .normal
+        _videoMarkView.isHidden = item.assetType == .normal || (!Me.UI.playLivePhotos && item.assetType == .livePhoto)
         _progressView.isHidden = item.assetType == .normal
         
         item.selectedStateCallback = { [weak self] in
@@ -158,7 +158,7 @@ private extension TanImagePicker.ImageCell {
                     }
             })
         }
-        else if #available(iOS 9.1, *), item.assetType == .livePhoto {
+        else if #available(iOS 9.1, *), item.assetType == .livePhoto, Me.UI.playLivePhotos {
             _videoOrLivePhotoRequestID = Me.ImagesManager.shared.fetchLivePhoto(with: item.asset, progressHandler: { [weak self] progress, _ in
                 Me.inMainQueue {
                     self?._progressView.progress = progress

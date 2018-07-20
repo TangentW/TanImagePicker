@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'TanImagePicker'
-  s.version          = '0.2.4'
+  s.version          = '0.2.5'
   s.summary          = 'Simple image picker, support iCloud.'
  
   s.homepage         = 'https://github.com/TangentW/TanImagePicker'
