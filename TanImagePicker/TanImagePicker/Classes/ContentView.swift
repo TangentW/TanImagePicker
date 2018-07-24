@@ -49,7 +49,8 @@ extension TanImagePicker.ContentView {
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let sizeValue = 0.5 * (view.bounds.height - 3 * Me.UI.imageMargin())
+        let rowsCount = CGFloat(Me.UI.rowsCount())
+        let sizeValue = (view.bounds.height - (rowsCount + 1) * Me.UI.imageMargin()) / rowsCount
         _layout.itemSize = CGSize(width: sizeValue, height: sizeValue)
     }
 }

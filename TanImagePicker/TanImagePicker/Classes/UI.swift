@@ -24,6 +24,7 @@ public extension TanImagePicker {
         case cellProgressViewLineWidth(Measure)
         case automaticallyFetchVideoIfHas(Bool)
         case playLivePhotos(Bool)
+        case rowsCount(Measure)
     }
 }
 
@@ -47,6 +48,7 @@ extension TanImagePicker.UIItem: Hashable {
         case .cellProgressViewLineWidth: return 10
         case .automaticallyFetchVideoIfHas: return 11
         case .playLivePhotos: return 12
+        case .rowsCount: return 13
         }
     }
 }
@@ -66,6 +68,7 @@ extension TanImagePicker {
         private(set) static var cellProgressViewLineWidth: Measure = { 4 }
         private(set) static var automaticallyFetchVideosOrLivePhotosIfHas: Bool = true
         private(set) static var playLivePhotos: Bool = true
+        private(set) static var rowsCount: Measure = { 2 }
         
         private static func _update(_ item: UIItem) {
             switch item {
@@ -95,6 +98,8 @@ extension TanImagePicker {
                 automaticallyFetchVideosOrLivePhotosIfHas = ok
             case .playLivePhotos(let play):
                 playLivePhotos = play
+            case .rowsCount(let count):
+                rowsCount = count
             }
         }
         
