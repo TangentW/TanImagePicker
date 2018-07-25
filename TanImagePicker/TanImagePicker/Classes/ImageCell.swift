@@ -335,11 +335,9 @@ private extension TanImagePicker.ImageCell._PlayeView {
 @available(iOS 9.1, *)
 private extension TanImagePicker {
     final class _LivePhotoPlayer: PHLivePhotoView {
-        private var _shouldLoopToPlay = false
         
         override init(frame: CGRect) {
             super.init(frame: frame)
-            delegate = self
             isMuted = true
         }
         
@@ -349,22 +347,12 @@ private extension TanImagePicker {
         
         func play() {
             guard livePhoto != nil else { return }
-            _shouldLoopToPlay = true
-            startPlayback(with: .full)
+            startPlayback(with: .hint)
         }
         
         func stop() {
-            _shouldLoopToPlay = false
             stopPlayback()
         }
-    }
-}
-
-@available(iOS 9.1, *)
-extension TanImagePicker._LivePhotoPlayer: PHLivePhotoViewDelegate {
-    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
-        guard _shouldLoopToPlay else { return }
-        play()
     }
 }
 
