@@ -40,7 +40,8 @@ extension TanImagePicker.ImagesAdapter {
         collectionView.register(Me.ImageCell.self, forCellWithReuseIdentifier: Me.ImageCell.identifier)
         collectionView.register(Me.CustomViewContainer.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: Me.CustomViewContainer.identifier)
         
-        if contentView.traitCollection.forceTouchCapability == .available {
+        if Me.UI.enable3DTouchPreview,
+            contentView.traitCollection.forceTouchCapability == .available {
             contentView.registerForPreviewing(with: self, sourceView: collectionView)
         }
     }
@@ -163,7 +164,7 @@ extension TanImagePicker {
 // MARK: - 3D Touch
 extension TanImagePicker.ImagesAdapter: UIViewControllerPreviewingDelegate {
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
-        if _contentView?.parent is UIInputViewController { return nil }
+        guard Me.UI.enable3DTouchPreview else { return nil }
         guard
             let collectionView = _collectionView,
             let indexPath = collectionView.indexPathForItem(at: location),

@@ -25,8 +25,15 @@ public extension TanImagePicker {
             let layout = UICollectionViewFlowLayout()
             layout.minimumLineSpacing = UI.imageMargin()
             layout.minimumInteritemSpacing = UI.imageMargin()
-            layout.scrollDirection = .horizontal
-            layout.sectionInset = UIEdgeInsets(top: UI.imageMargin(), left: 0, bottom: UI.imageMargin(), right: 0)
+            layout.scrollDirection = UI.direction.collectionViewScrollDirection
+            layout.sectionInset = {
+                switch UI.direction {
+                case .horizontal:
+                    return UIEdgeInsets(top: UI.imageMargin(), left: 0, bottom: UI.imageMargin(), right: 0)
+                case .vertical:
+                    return UIEdgeInsets(top: 0, left: UI.imageMargin(), bottom: 0, right: UI.imageMargin())
+                }
+            }()
             return layout
         }()
         
@@ -43,14 +50,17 @@ extension TanImagePicker.ContentView {
         _setupCustomViewController()
         needsLoadData?(self, _customViewController?.view)
         if _customViewController != nil {
-            _layout.headerReferenceSize = CGSize(width: Me.UI.customViewControllerWidth(), height: 0)
+            _layout.headerReferenceSize = Me.UI.direction == .horizontal
+                ? CGSize(width: Me.UI.customViewControllerWidthOrHeight(), height: 0)
+                : CGSize(width: 0, height: Me.UI.customViewControllerWidthOrHeight())
         }
     }
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let rowsCount = CGFloat(Me.UI.rowsCount())
-        let sizeValue = (view.bounds.height - (rowsCount + 1) * Me.UI.imageMargin()) / rowsCount
+        let rowsOrColumnsCount = CGFloat(Me.UI.rowsOrColumnsCount())
+        let referenceSizeValue = Me.UI.direction == .horizontal ? view.bounds.height : view.bounds.width
+        let sizeValue = (referenceSizeValue - (rowsOrColumnsCount + 1) * Me.UI.imageMargin()) / rowsOrColumnsCount
         _layout.itemSize = CGSize(width: sizeValue, height: sizeValue)
     }
 }

@@ -120,3 +120,13 @@ extension Array where Element == PHAsset {
         }
     }
 }
+
+extension TimeInterval {
+    var formatString: String {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .positional
+        formatter.allowedUnits = [.minute, .second]
+        formatter.zeroFormattingBehavior = .pad
+        return formatter.string(from: self) ?? String(format: "%.2f", self)
+    }
+}

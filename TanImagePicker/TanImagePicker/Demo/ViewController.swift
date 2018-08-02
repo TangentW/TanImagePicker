@@ -10,7 +10,12 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    private lazy var _picker = TanImagePicker(mediaOption: .all, customViewController: TestViewController())
+    private let ui: Set<TanImagePicker.UIItem> = [
+        .direction(.vertical),
+        .rowsOrColumnsCount { 3 },
+    ]
+    
+    private lazy var _picker = TanImagePicker(UI: ui, mediaOption: .all, customViewController: TestViewController())
 
     override func viewDidLoad() {
         super.viewDidLoad()

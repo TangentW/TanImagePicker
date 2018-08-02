@@ -11,6 +11,7 @@ import Photos
 import PhotosUI
 
 private var _livePhotoPlayerKey: UInt8 = 23
+private let _magicMarginNumber: CGFloat = 6
 extension TanImagePicker {
     final class ImageCell: UICollectionViewCell, ReusableView {
         override init(frame: CGRect) {
@@ -24,6 +25,8 @@ extension TanImagePicker {
             contentView.addSubview(_progressView)
             contentView.addSubview(_checkView)
             contentView.addSubview(_videoMarkView)
+            contentView.addSubview(_videoDurationView)
+            contentView.addSubview(_livePhotoMarkView)
         }
         
         deinit {
@@ -49,11 +52,30 @@ extension TanImagePicker {
         
         private let _videoMarkView: UIImageView = {
             $0.sizeToFit()
-            $0.autoresizingMask = [.flexibleTopMargin, .flexibleRightMargin]
+            $0.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
             $0.isHidden = true
-            $0.tintColor = .white
             return $0
-        }(UIImageView(image: UIImage(named: "video", in: Bundle.myBundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)))
+        }(UIImageView(image: UIImage(named: "video", in: Bundle.myBundle, compatibleWith: nil)))
+        
+        private let _videoDurationView: UILabel = {
+            let label = UILabel()
+            label.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
+            label.textColor = .white
+            label.font = .systemFont(ofSize: 13)
+            label.isHidden = true
+            label.layer.shadowColor = UIColor.black.cgColor
+            label.layer.shadowOffset = .zero
+            label.layer.shadowRadius = 1
+            label.layer.shadowOpacity = 0.5
+            return label
+        }()
+        
+        private let _livePhotoMarkView: UIImageView = {
+            $0.sizeToFit()
+            $0.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
+            $0.isHidden = true
+            return $0
+        }(UIImageView(image: UIImage(named: "livephoto", in: Bundle.myBundle, compatibleWith: nil)))
         
         private let _playerView: _PlayeView = {
             $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -97,13 +119,25 @@ extension TanImagePicker {
 }
 
 extension TanImagePicker.ImageCell {
+    private var _normalCheckViewX: CGFloat {
+        return bounds.width - Me.UI.checkViewHorizontalMargin() - _checkView.bounds.width
+    }
+    
+    private var _normalCheckViewY: CGFloat {
+        return bounds.height - Me.UI.checkViewBottomMargin() - _checkView.bounds.height
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         _imageView.frame = bounds
-        _checkView.frame.origin.x = bounds.width - Me.UI.checkViewHorizontalMargin() - _checkView.bounds.width
-        _checkView.frame.origin.y = bounds.height - Me.UI.checkViewBottomMargin() - _checkView.bounds.height
-        _videoMarkView.frame.origin.y = bounds.height - Me.UI.videoMarkViewBottomMargin() - _videoMarkView.bounds.height
-        _videoMarkView.frame.origin.x = Me.UI.videoMarkVideLeftMargin()
+        _checkView.frame.origin.x = _normalCheckViewX
+        _checkView.frame.origin.y = _normalCheckViewY
+        [_videoMarkView, _livePhotoMarkView].forEach {
+            $0.frame.origin.x = Me.UI.videoOrLivePhotoMarkVideLeftMargin()
+            $0.frame.origin.y = Me.UI.videoOrLivePhotoMarkViewTopMargin()
+        }
+        _videoDurationView.center.y = _videoMarkView.center.y
+        _videoDurationView.frame.origin.x = _videoMarkView.frame.maxX + Me.UI.videoOrLivePhotoMarkVideLeftMargin()
         _playerView.frame = bounds
         _progressView.center = _playerView.center
         if #available(iOS 9.1, *) {
@@ -113,6 +147,8 @@ extension TanImagePicker.ImageCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        _checkView.frame.origin.x = Me.UI.direction == .horizontal ? _magicMarginNumber : _normalCheckViewX
+        _checkView.frame.origin.y = Me.UI.direction == .vertical ? _magicMarginNumber : _normalCheckViewY
         _clear()
     }
 }
@@ -128,7 +164,13 @@ private extension TanImagePicker.ImageCell {
         guard isContentViewCell else { return }
         _checkView.refresh(isSelected: item.isSelected)
         _checkView.isHidden = !item.canSelected
-        _videoMarkView.isHidden = item.assetType == .normal || (!Me.UI.playLivePhotos && item.assetType == .livePhoto)
+        
+        _videoMarkView.isHidden = item.assetType != .video
+        _videoDurationView.isHidden = item.assetType != .video
+        _videoDurationView.text = item.asset.duration.formatString
+        _videoDurationView.sizeToFit()
+        
+        _livePhotoMarkView.isHidden = item.assetType != .livePhoto
         _progressView.isHidden = item.assetType == .normal
         
         item.selectedStateCallback = { [weak self] in
@@ -158,7 +200,7 @@ private extension TanImagePicker.ImageCell {
                     }
             })
         }
-        else if #available(iOS 9.1, *), item.assetType == .livePhoto, Me.UI.playLivePhotos {
+        else if #available(iOS 9.1, *), item.assetType == .livePhoto {
             _videoOrLivePhotoRequestID = Me.ImagesManager.shared.fetchLivePhoto(with: item.asset, progressHandler: { [weak self] progress, _ in
                 Me.inMainQueue {
                     self?._progressView.progress = progress
@@ -211,14 +253,25 @@ extension TanImagePicker.ImageCell {
     private func _layoutCheckViewWithMaxX(_ x: CGFloat) {
         _checkView.frame.origin.x = x - Me.UI.checkViewHorizontalMargin() - _checkView.bounds.width
     }
+
+    private func _layoutCheckViewWithMaxY(_ y: CGFloat) {
+        _checkView.frame.origin.y = y - Me.UI.checkViewBottomMargin() - _checkView.bounds.height
+    }
     
     func scrolling(collectionView: UICollectionView) {
         guard let superview = superview else { return }
         let cellFrame = collectionView.convert(frame, from: superview)
-        let maxX = min(cellFrame.maxX, collectionView.bounds.maxX) - cellFrame.origin.x
-        let magicMarginNumber: CGFloat = 6
-        guard maxX > Me.UI.checkViewHorizontalMargin() + _checkView.bounds.width + magicMarginNumber else { return }
-        _layoutCheckViewWithMaxX(maxX)
+
+        switch Me.UI.direction {
+        case .horizontal:
+            let maxX = min(cellFrame.maxX, collectionView.bounds.maxX) - cellFrame.origin.x
+            guard maxX > Me.UI.checkViewHorizontalMargin() + _checkView.bounds.width + _magicMarginNumber else { return }
+            _layoutCheckViewWithMaxX(maxX)
+        case .vertical:
+            let maxY = min(cellFrame.maxY, collectionView.bounds.maxY) - cellFrame.origin.y
+            guard maxY > Me.UI.checkViewBottomMargin() + _checkView.bounds.height + _magicMarginNumber else { return }
+            _layoutCheckViewWithMaxY(maxY)
+        }
     }
     
     func switchScrollingState(isScrolling: Bool) {
@@ -335,12 +388,10 @@ private extension TanImagePicker.ImageCell._PlayeView {
 @available(iOS 9.1, *)
 private extension TanImagePicker {
     final class _LivePhotoPlayer: PHLivePhotoView {
-        private var _shouldLoopToPlay = false
-        
         override init(frame: CGRect) {
             super.init(frame: frame)
-            delegate = self
             isMuted = true
+            isUserInteractionEnabled = !Me.UI.enable3DTouchPreview
         }
         
         required init?(coder aDecoder: NSCoder) {
@@ -349,22 +400,12 @@ private extension TanImagePicker {
         
         func play() {
             guard livePhoto != nil else { return }
-            _shouldLoopToPlay = true
-            startPlayback(with: .full)
+            startPlayback(with: .hint)
         }
         
         func stop() {
-            _shouldLoopToPlay = false
             stopPlayback()
         }
-    }
-}
-
-@available(iOS 9.1, *)
-extension TanImagePicker._LivePhotoPlayer: PHLivePhotoViewDelegate {
-    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
-        guard _shouldLoopToPlay else { return }
-        play()
     }
 }
 
