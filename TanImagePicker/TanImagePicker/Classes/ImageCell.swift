@@ -170,7 +170,7 @@ private extension TanImagePicker.ImageCell {
         _videoDurationView.text = item.asset.duration.formatString
         _videoDurationView.sizeToFit()
         
-        _livePhotoMarkView.isHidden = item.assetType != .livePhoto
+        _livePhotoMarkView.isHidden = !Me.UI.enableLivePhoto && item.assetType != .livePhoto
         _progressView.isHidden = item.assetType == .normal
         
         item.selectedStateCallback = { [weak self] in
@@ -183,7 +183,7 @@ private extension TanImagePicker.ImageCell {
     }
     
     func _beginFetchVideoOrLivePhoto(_ item: Me.ImageItem) {
-        guard item.assetType == .video || item.assetType == .livePhoto, Me.UI.automaticallyFetchVideosOrLivePhotosIfHas else { return }
+        guard item.assetType == .video || (item.assetType == .livePhoto && Me.UI.enableLivePhoto), Me.UI.automaticallyFetchVideosOrLivePhotosIfHas else { return }
         if item.assetType == .video {
             _videoOrLivePhotoRequestID = Me.ImagesManager.shared.fetchVideo(with: item.asset, progressHandler: { [weak self] progress, _ in
                 Me.inMainQueue {
@@ -200,7 +200,7 @@ private extension TanImagePicker.ImageCell {
                     }
             })
         }
-        else if #available(iOS 9.1, *), item.assetType == .livePhoto {
+        else if #available(iOS 9.1, *), item.assetType == .livePhoto, Me.UI.enableLivePhoto {
             _videoOrLivePhotoRequestID = Me.ImagesManager.shared.fetchLivePhoto(with: item.asset, progressHandler: { [weak self] progress, _ in
                 Me.inMainQueue {
                     self?._progressView.progress = progress

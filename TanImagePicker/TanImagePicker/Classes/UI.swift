@@ -26,6 +26,7 @@ public extension TanImagePicker {
         case rowsOrColumnsCount(Measure)
         case direction(Direction)
         case enable3DTouchPreview(Bool)
+        case enableLivePhoto(Bool)
     }
     
     enum Direction {
@@ -63,6 +64,7 @@ extension TanImagePicker.UIItem: Hashable {
         case .rowsOrColumnsCount: return 12
         case .direction: return 13
         case .enable3DTouchPreview: return 14
+        case .enableLivePhoto: return 15
         }
     }
 }
@@ -84,6 +86,7 @@ extension TanImagePicker {
         private(set) static var rowsOrColumnsCount: Measure = { 2 }
         private(set) static var direction: Direction = .horizontal
         private(set) static var enable3DTouchPreview: Bool = true
+        private(set) static var enableLivePhoto: Bool = true
         
         private static func _update(_ item: UIItem) {
             switch item {
@@ -117,6 +120,8 @@ extension TanImagePicker {
                 direction = dir
             case .enable3DTouchPreview(let enable):
                 enable3DTouchPreview = enable
+            case .enableLivePhoto(let enable):
+                enableLivePhoto = enable
             }
         }
         

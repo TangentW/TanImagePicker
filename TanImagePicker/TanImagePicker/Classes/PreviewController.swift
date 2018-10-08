@@ -90,7 +90,7 @@ extension TanImagePicker {
                     }
                 }
             }
-            else if #available(iOS 9.1, *), _item.assetType == .livePhoto {
+            else if #available(iOS 9.1, *), _item.assetType == .livePhoto, Me.UI.enableLivePhoto {
                 let asset = _item.asset
                 ImagesManager.shared.fetchLivePhoto(with: asset, completionHandler: { [weak self] in
                     guard let livePhoto = $0 else { return }

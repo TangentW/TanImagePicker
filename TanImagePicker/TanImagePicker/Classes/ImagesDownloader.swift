@@ -60,7 +60,7 @@ fileprivate extension PHAsset {
             group.enter()
             Me.ImagesManager.shared.fetchVideo(with: self, progressHandler: progressHandler) { _ in group.leave() }
             group.wait()
-        } else if #available(iOS 9.1, *), mediaSubtypes == .photoLive {
+        } else if #available(iOS 9.1, *), mediaSubtypes == .photoLive, Me.UI.enableLivePhoto {
             group.enter()
             Me.ImagesManager.shared.fetchLivePhoto(with: self, progressHandler: progressHandler) { _ in group.leave() }
             group.wait()
