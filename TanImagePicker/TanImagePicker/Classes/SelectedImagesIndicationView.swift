@@ -38,7 +38,7 @@ public extension TanImagePicker {
         
         private lazy var _originalImagesCheckbox: UIButton = {
             let button = UIButton()
-            button.setTitle("Original".localizedString, for: .normal)
+            button.setTitle(UI.indicationViewSendOriginalTitle, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 13)
             button.setTitleColor(.darkGray, for: .normal)
             button.setImage(UIImage(named: "check_box", in: Bundle.myBundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal), for: .normal)
