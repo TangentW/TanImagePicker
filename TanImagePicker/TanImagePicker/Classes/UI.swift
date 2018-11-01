@@ -20,6 +20,7 @@ public extension TanImagePicker {
         case videoOrLivePhotoMarkViewLeftMargin(Measure)
         case indicationViewImageMargin(Measure)
         case indicationViewBackgroundColor(UIColor)
+        case indicationViewSendOriginalTitle(String)
         case cellProgressViewRadius(Measure)
         case cellProgressViewLineWidth(Measure)
         case automaticallyFetchVideoIfHas(Bool)
@@ -48,24 +49,7 @@ extension TanImagePicker.UIItem: Hashable {
     }
     
     public var hashValue: Int {
-        switch self {
-        case .contentViewbackgroundColor: return 0
-        case .imageMargin: return 1
-        case .customViewControllerWidthOrHeight: return 2
-        case .checkViewBottomMargin: return 3
-        case .checkViewRightMargin: return 4
-        case .indicationViewImageMargin: return 5
-        case .indicationViewBackgroundColor: return 6
-        case .videoOrLivePhotoMarkViewTopMargin: return 7
-        case .videoOrLivePhotoMarkViewLeftMargin: return 8
-        case .cellProgressViewRadius: return 9
-        case .cellProgressViewLineWidth: return 10
-        case .automaticallyFetchVideoIfHas: return 11
-        case .rowsOrColumnsCount: return 12
-        case .direction: return 13
-        case .enable3DTouchPreview: return 14
-        case .enableLivePhoto: return 15
-        }
+        return "\(self)".split(separator: "(").first?.hashValue ?? 0
     }
 }
 
@@ -78,6 +62,7 @@ extension TanImagePicker {
         private(set) static var checkViewHorizontalMargin: Measure = { 6 }
         private(set) static var indicationViewImageMargin: Measure = { 9 }
         private(set) static var indicationViewBackgroundColor: UIColor = .white
+        private(set) static var indicationViewSendOriginalTitle = "Original".localizedString
         private(set) static var videoOrLivePhotoMarkViewTopMargin: Measure = { 10 }
         private(set) static var videoOrLivePhotoMarkVideLeftMargin: Measure = { 8 }
         private(set) static var cellProgressViewRadius: Measure = { 18 }
@@ -104,6 +89,8 @@ extension TanImagePicker {
                 indicationViewImageMargin = margin
             case .indicationViewBackgroundColor(let color):
                 indicationViewBackgroundColor = color
+            case .indicationViewSendOriginalTitle(let title):
+                indicationViewSendOriginalTitle = title
             case .videoOrLivePhotoMarkViewTopMargin(let margin):
                 videoOrLivePhotoMarkViewTopMargin = margin
             case .videoOrLivePhotoMarkViewLeftMargin(let margin):
